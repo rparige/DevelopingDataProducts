@@ -1,0 +1,63 @@
+World Child Hunger Analysis - A Shiny App
+========================================================
+author: Rao Parige
+date:   11/16/2014
+    
+Key Features of Shiny-WCHA
+========================================================
+
+Shiny-WCHA lets you utilize up-to-date WHO dataset to
+- Analyze world wide child hunger trends by gender
+- Analyze hunger trends by specific country 
+
+Shiny-WCHA is easy to extend with additional analytics
+
+Here is the basic World Wide Child Hunger Plot by year
+========================================================
+
+```{r echo=FALSE}
+library(shiny)
+##data preparation
+hunger <<- read.csv("http://apps.who.int/gho/athena/data/GHO/WHOSIS_000008.csv")
+hunger <<-hunger[hunger$SEX!="BTSX",]
+countrylist <<- sort(unique(hunger$COUNTRY))
+countrylist <<- as.character(countrylist)
+countrylist <<-c("ALL",countrylist)
+
+plot(hunger$YEAR[hunger$SEX=="MLE"], hunger$Numeric[hunger$SEX=="MLE"], pch=19, col= "blue", xlab="Calendar Year", ylab="% Hungry Children", col.lab="brown")
+points(hunger$YEAR[hunger$SEX=="FMLE"], hunger$Numeric[hunger$SEX=="FMLE"], pch=19, col= "magenta")
+title(main="World Child Hunger Statistics from WHO", col.main ="red")
+legend("topright", c("Female", "Male","ALL", "By Country"), fill=c("magenta","blue","darkgrey", "brown"))
+
+
+
+```
+
+Fitted Linear Regression Models by Gender
+========================================================
+
+```{r, echo=FALSE}
+lmM <- lm(Numeric[SEX=="MLE"]~YEAR[SEX=="MLE"], data=hunger)
+lmF <- lm(Numeric[SEX=="FMLE"]~YEAR[SEX=="FMLE"], data=hunger)
+lmC <- lm(Numeric[COUNTRY=="USA"]~YEAR[COUNTRY=="USA"], data=hunger)
+plot(hunger$YEAR[hunger$SEX=="MLE"], hunger$Numeric[hunger$SEX=="MLE"], pch=19, col= "blue", xlab="Calendar Year", ylab="% Hungry Children", col.lab="brown")
+points(hunger$YEAR[hunger$SEX=="FMLE"], hunger$Numeric[hunger$SEX=="FMLE"], pch=19, col= "magenta")
+title(main="World Child Hunger Statistics from WHO", col.main ="red")
+legend("topright", c("Female", "Male","ALL", "By Country"), fill=c("magenta","blue","darkgrey", "brown"))
+lines(hunger$YEAR[hunger$SEX=="MLE"], lmM$fitted, lwd =1, col = "blue")
+lines(hunger$YEAR[hunger$SEX=="FMLE"], lmF$fitted, lwd =1, col = "magenta")
+```
+
+Way to analyze Hunger Trends by Country (ex. BRA)!
+========================================================
+
+```{r, echo=FALSE}
+lmC <- lm(Numeric[COUNTRY=="BRA"]~YEAR[COUNTRY=="BRA"], data=hunger)
+plot(hunger$YEAR[hunger$SEX=="MLE"], hunger$Numeric[hunger$SEX=="MLE"], pch=19, col= "blue", xlab="Calendar Year", ylab="% Hungry Children", col.lab="brown")
+points(hunger$YEAR[hunger$SEX=="FMLE"], hunger$Numeric[hunger$SEX=="FMLE"], pch=19, col= "magenta")
+title(main="World Child Hunger Statistics from WHO", col.main ="red")
+legend("topright", c("Female", "Male","ALL", "By Country"), fill=c("magenta","blue","darkgrey", "brown"))
+lines(hunger$YEAR[hunger$SEX=="MLE"], lmM$fitted, lwd =1, col = "blue")
+lines(hunger$YEAR[hunger$SEX=="FMLE"], lmF$fitted, lwd =1, col = "magenta")
+lines(hunger$YEAR[hunger$COUNTRY=="BRA"],lmC$fitted, lwd = 4, col = "brown")
+```
